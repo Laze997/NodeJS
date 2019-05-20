@@ -34,6 +34,7 @@ api.post("/register", (req, res, next)=>{
         country: country,
         password: password
     });
+<<<<<<< HEAD
 
     user.save(function(err){
         if(err){
@@ -100,13 +101,21 @@ api.get("/expenses", (req, res) => {
 api.post("/", (req, res) => {
     var email = req.body.email;
     var password = req.body.password;
+=======
 
-    // database checks
-    req.session.user = email; 
+    user.save(function(err){
+        if(err){
+            return next(err);
+        }
+        res.send("User saved!")
+    })
 
-    // return response to frontEnd
+>>>>>>> 781caa955269829504db4c5b4ca906b185077b92
+
+
 });
 
+<<<<<<< HEAD
 
 api.delete("/products/:id", (id, res) => {
     Product.delete({_id:id}, (err) => {
@@ -125,3 +134,79 @@ api.patch("/products/:id", (id, data, res, next) => {
         res.send("Succesfully Edited")
     })
 })
+=======
+api.get("/", (req, res) => {
+   
+    res.send("Hello")
+})
+
+
+api.post("/newproduct", (req, res, next)=>{
+    var productname = req.body.productname;
+    var desc = req.body.desc;
+    var type = req.body.type;
+    var date = req.body.date;
+    var price = req.body.price;
+    var userEmail = req.body.userEmail;
+
+    let newproduct = new Product({
+        productname: productname, 
+        desc: desc,  
+        type: type,
+        date: date,
+        price: price,
+        userEmail: userEmail
+    });
+
+    newproduct.save(function(err){
+        if(err){
+            return next(err);
+        }
+        res.send("New Product saved!");
+    })
+})
+
+api.get("/products", (req, res) => {
+    Product.find({}, function(err, products){
+        if(err){
+            return next(err)
+        }
+        
+        res.send(products)
+    })
+})
+
+// api.post("/login", (req, res) => {
+//     var email = req.body.email;
+//     var password = req.body.password;
+
+//     // database checks
+//     req.session.user = email; 
+
+//     // return response to frontEnd
+// });
+
+// api.post("/newproduct", (req, res) => {
+//     if(req.session.email){
+//         var productname = req.bodyproductname;
+//         var desc = req.body.desc;
+//         var type = req.body.type;
+//         var date = req.body.date;
+//         var price = req.body.price;
+//         var userEmail = req.session.email;
+
+//         var p = new product.create(productname, desc, type, date, price, userEmail);
+//         // send response to frontend
+//     }
+
+//     else{
+//         res.status(403).send("Access denied")
+//     }
+
+    
+// })
+
+
+
+
+>>>>>>> 781caa955269829504db4c5b4ca906b185077b92
