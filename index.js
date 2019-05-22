@@ -39,6 +39,7 @@ api.post("/register", (req, res, next)=>{
         country: country,
         password: password
     });
+<<<<<<< HEAD
 
     user.save(function(err){
         if(err){
@@ -51,6 +52,102 @@ api.post("/register", (req, res, next)=>{
 
 });
 
+<<<<<<< HEAD
+=======
+// api.get("/", (req, res) => {
+   
+//     res.send("Hello")
+// })
+
+
+api.post("/newproduct", (req, res, next)=>{
+    var productname = req.body.productname;
+    var desc = req.body.desc;
+    var type = req.body.type;
+    var date = req.body.date;
+    var price = req.body.price;
+    var userEmail = req.body.userEmail;
+
+    let newproduct = new Product({
+        productname: productname, 
+        desc: desc,  
+        type: type,
+        date: date,
+        price: price,
+        userEmail: userEmail
+    });
+
+    newproduct.save(function(err){
+        if(err){
+            return next(err);
+        }
+        res.send("New Product saved!");
+    })
+})
+
+api.get("/products", (res, next) => {
+    Product.find({}, function(err, products){
+        if(err){
+            return next(err)
+        }
+        
+        res.send(products)
+    })
+})
+
+api.get("/expenses", (req, res) => {
+    Product.find({}, function(err, products) {
+        if(err){
+            return next(err)
+        }
+
+        res.send(products)
+    })
+})
+
+api.post("/", (req, res) => {
+    var email = req.body.email;
+    var password = req.body.password;
+=======
+
+    user.save(function(err){
+        if(err){
+            return next(err);
+        }
+        res.send("User saved!")
+    })
+
+>>>>>>> 781caa955269829504db4c5b4ca906b185077b92
+
+
+});
+
+<<<<<<< HEAD
+
+api.delete("/products/:id", (id, res) => {
+    Product.delete({_id:id}, (err) => {
+        if(err){
+            return next(err)
+        }
+        res.send("Succesfully Deleted Product")
+    })
+})
+
+api.patch("/products/:id", (id, data, res, next) => {
+    Product.update({_id:id}, data, (err) => {
+        if(err){
+            return next(err)
+        }
+        res.send("Succesfully Edited")
+    })
+})
+=======
+api.get("/", (req, res) => {
+   
+    res.send("Hello")
+})
+
+>>>>>>> 52132b9a74cc64419c04b1b98c86cdf2b8f6b97a
 
 api.post("/newproduct", (req, res, next)=>{
     var productname = req.body.productname;
@@ -115,6 +212,7 @@ api.delete("/products/:id", (req, res, next) => {
     })
 })
 
+<<<<<<< HEAD
 api.patch("/products/:id", (req, res, next) => {
     Product.findByIdAndUpdate({_id:req.params.id}, req.body, (err) => {
         if(err){
@@ -123,3 +221,6 @@ api.patch("/products/:id", (req, res, next) => {
         res.send("Succesfully Edited")
     })
 })
+=======
+>>>>>>> 781caa955269829504db4c5b4ca906b185077b92
+>>>>>>> 52132b9a74cc64419c04b1b98c86cdf2b8f6b97a
