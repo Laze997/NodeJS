@@ -13,8 +13,13 @@ api.listen(3000)
 api.use(session({secret: "laze"}))
 api.use(bodyParser.urlencoded({extended:true}));
 
+let allowCrossDomain = function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', "*");
+    res.header('Access-Control-Allow-Headers', "*");
+    next();
+  }
+  api.use(allowCrossDomain);
 
-// var u1 = new users.create("lazar","stepanoski","lazar@yahoo.com","17/03/1997", "078500000", "Macedonia", "123456");
 
 api.post("/register", (req, res, next)=>{
     var firstname = req.body.firstname;
@@ -34,7 +39,6 @@ api.post("/register", (req, res, next)=>{
         country: country,
         password: password
     });
-<<<<<<< HEAD
 
     user.save(function(err){
         if(err){
@@ -46,11 +50,6 @@ api.post("/register", (req, res, next)=>{
 
 
 });
-
-// api.get("/", (req, res) => {
-   
-//     res.send("Hello")
-// })
 
 
 api.post("/newproduct", (req, res, next)=>{
@@ -78,17 +77,16 @@ api.post("/newproduct", (req, res, next)=>{
     })
 })
 
-api.get("/products", (res, next) => {
+api.get("/products", (req, res, next) => {
     Product.find({}, function(err, products){
         if(err){
             return next(err)
         }
-        
         res.send(products)
     })
 })
 
-api.get("/expenses", (req, res) => {
+api.get("/expenses", (req, res, next) => {
     Product.find({}, function(err, products) {
         if(err){
             return next(err)
@@ -101,24 +99,16 @@ api.get("/expenses", (req, res) => {
 api.post("/", (req, res) => {
     var email = req.body.email;
     var password = req.body.password;
-=======
 
-    user.save(function(err){
-        if(err){
-            return next(err);
-        }
-        res.send("User saved!")
-    })
+    req.session.user = email;
 
->>>>>>> 781caa955269829504db4c5b4ca906b185077b92
-
+    res.send("Succesfully Logged In")
 
 });
 
-<<<<<<< HEAD
 
-api.delete("/products/:id", (id, res) => {
-    Product.delete({_id:id}, (err) => {
+api.delete("/products/:id", (req, res, next) => {
+    Product.deleteOne({_id:req.params.id}, function(err){
         if(err){
             return next(err)
         }
@@ -126,87 +116,11 @@ api.delete("/products/:id", (id, res) => {
     })
 })
 
-api.patch("/products/:id", (id, data, res, next) => {
-    Product.update({_id:id}, data, (err) => {
+api.patch("/products/:id", (req, res, next) => {
+    Product.findByIdAndUpdate({_id:req.params.id}, req.body, (err) => {
         if(err){
             return next(err)
         }
         res.send("Succesfully Edited")
     })
 })
-=======
-api.get("/", (req, res) => {
-   
-    res.send("Hello")
-})
-
-
-api.post("/newproduct", (req, res, next)=>{
-    var productname = req.body.productname;
-    var desc = req.body.desc;
-    var type = req.body.type;
-    var date = req.body.date;
-    var price = req.body.price;
-    var userEmail = req.body.userEmail;
-
-    let newproduct = new Product({
-        productname: productname, 
-        desc: desc,  
-        type: type,
-        date: date,
-        price: price,
-        userEmail: userEmail
-    });
-
-    newproduct.save(function(err){
-        if(err){
-            return next(err);
-        }
-        res.send("New Product saved!");
-    })
-})
-
-api.get("/products", (req, res) => {
-    Product.find({}, function(err, products){
-        if(err){
-            return next(err)
-        }
-        
-        res.send(products)
-    })
-})
-
-// api.post("/login", (req, res) => {
-//     var email = req.body.email;
-//     var password = req.body.password;
-
-//     // database checks
-//     req.session.user = email; 
-
-//     // return response to frontEnd
-// });
-
-// api.post("/newproduct", (req, res) => {
-//     if(req.session.email){
-//         var productname = req.bodyproductname;
-//         var desc = req.body.desc;
-//         var type = req.body.type;
-//         var date = req.body.date;
-//         var price = req.body.price;
-//         var userEmail = req.session.email;
-
-//         var p = new product.create(productname, desc, type, date, price, userEmail);
-//         // send response to frontend
-//     }
-
-//     else{
-//         res.status(403).send("Access denied")
-//     }
-
-    
-// })
-
-
-
-
->>>>>>> 781caa955269829504db4c5b4ca906b185077b92
