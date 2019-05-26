@@ -10,8 +10,9 @@ var api = express();
 
 api.listen(3000)
 
-api.use(session({secret: "laze"}))
-api.use(bodyParser.urlencoded({extended:true}));
+// api.use(session({secret: "laze"}))
+// api.use(bodyParser.urlencoded({extended:true}));
+api.use(bodyParser.json({extended:true}));
 
 let allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', "*");
@@ -51,16 +52,6 @@ api.post("/register", (req, res, next)=>{
 
 });
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
-// api.get("/", (req, res) => {
-   
-//     res.send("Hello")
-// })
-
->>>>>>> d6ca444b22dbe30da9b3e80144b30d1b86f29e7f
 
 api.post("/newproduct", (req, res, next)=>{
     var productname = req.body.productname;
@@ -134,89 +125,3 @@ api.patch("/products/:id", (req, res, next) => {
         res.send("Succesfully Edited")
     })
 })
-<<<<<<< HEAD
-=======
-=======
-api.get("/", (req, res) => {
-   
-    res.send("Hello")
-})
-
->>>>>>> 52132b9a74cc64419c04b1b98c86cdf2b8f6b97a
-
-api.post("/newproduct", (req, res, next)=>{
-    var productname = req.body.productname;
-    var desc = req.body.desc;
-    var type = req.body.type;
-    var date = req.body.date;
-    var price = req.body.price;
-    var userEmail = req.body.userEmail;
-
-    let newproduct = new Product({
-        productname: productname, 
-        desc: desc,  
-        type: type,
-        date: date,
-        price: price,
-        userEmail: userEmail
-    });
-
-    newproduct.save(function(err){
-        if(err){
-            return next(err);
-        }
-        res.send("New Product saved!");
-    })
-})
-
-api.get("/products", (req, res, next) => {
-    Product.find({}, function(err, products){
-        if(err){
-            return next(err)
-        }
-        res.send(products)
-    })
-})
-
-api.get("/expenses", (req, res, next) => {
-    Product.find({}, function(err, products) {
-        if(err){
-            return next(err)
-        }
-
-        res.send(products)
-    })
-})
-
-api.post("/", (req, res) => {
-    var email = req.body.email;
-    var password = req.body.password;
-
-
-    
-
-});
-
-
-api.delete("/products/:id", (req, res, next) => {
-    Product.deleteOne({_id:req.params.id}, function(err){
-        if(err){
-            return next(err)
-        }
-        res.send("Succesfully Deleted Product")
-    })
-})
-
-<<<<<<< HEAD
-api.patch("/products/:id", (req, res, next) => {
-    Product.findByIdAndUpdate({_id:req.params.id}, req.body, (err) => {
-        if(err){
-            return next(err)
-        }
-        res.send("Succesfully Edited")
-    })
-})
-=======
->>>>>>> 781caa955269829504db4c5b4ca906b185077b92
->>>>>>> 52132b9a74cc64419c04b1b98c86cdf2b8f6b97a
->>>>>>> d6ca444b22dbe30da9b3e80144b30d1b86f29e7f
