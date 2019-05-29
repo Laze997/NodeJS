@@ -1,22 +1,13 @@
-// exports.create = function(productname, desc, type, date, price, userEmail){
-//     this.productname = productname;
-//     this.desc = desc;
-//     this.type = type;
-//     this.date = date;
-//     this.price = price;
-//     this.userEmail = userEmail;
-// }
-
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 var productSchema = new Schema({
-    productname: {type: String, required: true},
+    productname: {type: String},
     desc: {type: String},
     type: {type: String},
-    date: {type:String, required:true},
-    price: {type:Number, required:true},
-    userEmail:{type:String, required:true}
+    date: {type:String},
+    price: {type:Number},
+    userEmail:{type:String}
 })
 
 var Product = mongoose.model("Product", productSchema);
