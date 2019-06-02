@@ -1,18 +1,22 @@
 const User = require("./models/users");
 const Product = require("./models/product")
 const express = require("express");
+const db = require("./connection");
+var api = express();
 const bodyParser = require("body-parser");
 const session = require("express-session");
 const jwt = require("jsonwebtoken")
 const jwtSecret = "laze";
 
-const db = require("./connection");
-var api = express();
+
+
+api.use(session({secret: "laze"}))
+api.get(bodyParser.urlencoded({extended: true}))
+
+
 
 api.listen(3000)
 
-api.use(bodyParser.json({extended:true}));
-api.use(session({secret: "laze"}))
 
 let allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', "*");
@@ -22,46 +26,11 @@ let allowCrossDomain = function(req, res, next) {
   api.use(allowCrossDomain);
 
 
-// api.use(function (req, res, next) {
-//     if (req._parsedUrl.pathname !== '/' && req._parsedUrl.pathname !== '/register') {
-//         console.log('decoded token', jwt.verify(req.headers.access_token, jwtSecret));
-//         const decodedToken = jwt.verify(req.headers.access_token, jwtSecret);
-
-//         if (decodedToken === null) {
-//             res.send('Denied access').status(403);
-//         } else {
-//             User.findOne({ email: decodedToken.email }, (err, user) => {
-//                 if (user !== null) {
-//                     next();
-//                 } else {
-//                     res.status(403).send('Denied access')
-//                 }
-//             })
-//         }
-//     } else {
-//         next();
-//     }
-// })
-
-
 api.post("/", (req, res) => {
     var email = req.body.email;
     var password = req.body.password;
 
     req.session.User = email;
-
-    // User.findOne({ email, password }, (err, user) => {
-    //     if (err) {
-    //         res.send('Error from database').status(500);
-    //     } else {
-    //         if (user !== null) {
-    //             const access_token = jwt.sign({ email: user.email }, jwtSecret);
-    //             res.send({ access_token })
-    //         } else {
-    //             res.status(403).send('Credentials not correct');
-    //         }
-    //     }
-    // })
 
 });
   
@@ -141,7 +110,7 @@ api.get("/expenses", (req, res, next) => {
 })
 
 api.delete("/products/:id", (req, res, next) => {
-    Product.deleteOne({_id:req.params.id}, function(err){
+    Product.findByIdAndDelete({_id:req.params.id}, function(err){
         if(err){
             return next(err)
         }
@@ -168,5 +137,3 @@ api.patch("/products/:id", (req, res, next) => {
 
 
 
-// api.use(session({secret: "laze"}))
-// api.use(bodyParser.urlencoded({extended:true}));
