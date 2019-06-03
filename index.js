@@ -1,39 +1,28 @@
-const User = require("./models/users");
-const Product = require("./models/product")
+const Product = require("./models/product");
 const express = require("express");
-const db = require("./connection");
 var api = express();
-const bodyParser = require("body-parser");
+const db = require("./connection");
+const User = require("./models/users");
+const myParser = require("body-parser");
+var cors = require("cors")
+api.use(cors())
+api.use(myParser.urlencoded({ extended: true }));
+api.use(myParser.json());
 const session = require("express-session");
-const jwt = require("jsonwebtoken")
-const jwtSecret = "laze";
 
 
-
-api.use(session({secret: "laze"}))
-api.get(bodyParser.urlencoded({extended: true}))
-
-
-
-api.listen(3000)
-
+api.use(session({ secret: "test" }));
 
 let allowCrossDomain = function(req, res, next) {
-    res.header('Access-Control-Allow-Origin', "*");
-    res.header('Access-Control-Allow-Headers', "*");
-    next();
-  }
-  api.use(allowCrossDomain);
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
+  next();
+};
+api.use(allowCrossDomain);
 
+api.listen(3000);
 
-api.post("/", (req, res) => {
-    var email = req.body.email;
-    var password = req.body.password;
-
-    req.session.User = email;
-
-});
-  
 
 api.post("/register", (req, res, next)=>{
     var firstname = req.body.firstname;
@@ -61,6 +50,14 @@ api.post("/register", (req, res, next)=>{
         res.send("User saved!")
     })
 
+
+});
+
+api.post("/", (req, res) => {
+    var email = req.body.email;
+    var password = req.body.password;
+
+    req.session.User = email;
 
 });
 
@@ -109,17 +106,18 @@ api.get("/expenses", (req, res, next) => {
     })
 })
 
-api.delete("/products/:id", (req, res, next) => {
-    Product.findByIdAndDelete({_id:req.params.id}, function(err){
-        if(err){
+api.delete('/products/:id', (req, res, next) => {
+    Product.findOneAndDelete({ id: req.params._id }, function (err, data) {
+        if (err) {
             return next(err)
         }
-        res.send("Succesfully Deleted Product")
-    })
+        Product.find({}).then(data => res.send(data))
+    }
+    )
 })
 
 api.patch("/products/:id", (req, res, next) => {
-    Product.findByIdAndUpdate({_id:req.params.id}, req.body, (err) => {
+    Product.findByIdAndUpdate({id: req.params._id }, req.body, (err) => {
         if(err){
             return next(err)
         }
