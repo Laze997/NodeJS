@@ -107,7 +107,7 @@ api.get("/expenses", (req, res, next) => {
 })
 
 api.delete('/products/:id', (req, res, next) => {
-    Product.findOneAndDelete({ id: req.params._id }, function (err, data) {
+    Product.findOneAndDelete({ _id: req.params.id }, function (err) {
         if (err) {
             return next(err)
         }
@@ -117,7 +117,7 @@ api.delete('/products/:id', (req, res, next) => {
 })
 
 api.patch("/products/:id", (req, res, next) => {
-    Product.findByIdAndUpdate({id: req.params._id }, req.body, (err) => {
+    Product.findByIdAndUpdate({_id: req.params.id }, req.body, (err) => {
         if(err){
             return next(err)
         }
