@@ -5,24 +5,67 @@ const db = require("./connection");
 const User = require("./models/users");
 const myParser = require("body-parser");
 var cors = require("cors")
-api.use(cors())
+var jwt = require("jsonwebtoken");
+var jwtSecret = "secretkey"
+
+
+
 api.use(myParser.urlencoded({ extended: true }));
 api.use(myParser.json());
 const session = require("express-session");
 
 
 api.use(session({ secret: "test" }));
-
+// api.use(cors())
 let allowCrossDomain = function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "*");
-  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PATCH, PUT, DELETE");
   next();
 };
 api.use(allowCrossDomain);
 
+
 api.listen(3000);
 
+function verifyToken(req, res, next){
+
+    const bearerHeader = req.headers["authorization"]
+
+    if( typeof bearerHeader !== "undefined"){
+        const bearer = bearerHeader.split(" ");
+        const bearerToken = bearer[1];
+        req.token = bearerToken;
+        next();
+    }
+    else{
+        res.send(403)
+    }
+}
+
+
+api.post("/", (req, res) => {
+    var email = req.body.email;
+    var password = req.body.password;
+
+    User.findOne({email}, (err, user) => {
+        if(err){
+            res.send(500)
+        }
+        else{
+            if(user !== null){
+                const access_token = jwt.sign({email: user.email}, jwtSecret);
+                res.send({access_token, user})
+            }
+            else{
+                res.send(401)
+            }
+        }
+        
+    })
+    })
+
+    
 
 api.post("/register", (req, res, next)=>{
     var firstname = req.body.firstname;
@@ -33,7 +76,7 @@ api.post("/register", (req, res, next)=>{
     var country = req.body.country;
     var password = req.body.password;
 
-    let user = new User({
+    let newuser = new User({
         firstname: firstname,
         lastname: lastname,
         email: email,
@@ -43,23 +86,26 @@ api.post("/register", (req, res, next)=>{
         password: password
     });
 
-    user.save(function(err){
-        if(err){
-            return next(err);
+    User.findOne({ email }, (err, user) => {
+        if (err) {
+            res.send('Error creating user');
+        } else {
+            if (!user) {
+                newuser.save(function (err) {
+                    if (err) {
+                        res.status(406).send(err)
+                        return next(err);
+                    }
+                    const access_token = jwt.sign({ email: newuser.email }, jwtSecret);
+                    res.send({ access_token })
+                })
+            } else {
+                res.status(406).send('User already exist')
+            }
         }
-        res.send("User saved!")
     })
-
-
 });
 
-api.post("/", (req, res) => {
-    var email = req.body.email;
-    var password = req.body.password;
-
-    req.session.User = email;
-
-});
 
 
 api.post("/newproduct", (req, res, next)=>{
@@ -87,16 +133,32 @@ api.post("/newproduct", (req, res, next)=>{
     })
 })
 
-api.get("/products", (req, res, next) => {
+api.get("/products", verifyToken, (req, res, next) => {
+    jwt.verify(req.token, "secretkey", (err, authData) => {
+        if(err){
+            res.send(403)
+        }
+        else{
+            authData
+        }
+    })
     Product.find({}, function(err, products){
         if(err){
             return next(err)
         }
-        res.send(products)
+        res.send("Post Created", products)
     })
 })
 
-api.get("/expenses", (req, res, next) => {
+api.get("/expenses", verifyToken, (req, res, next) => {
+    jwt.verify(req.token, "secretkey", (err, authData) => {
+        if(err){
+            res.send(403)
+        }
+        else{
+            authData
+        }
+    })
     Product.find({}, function(err, products) {
         if(err){
             return next(err)
@@ -106,7 +168,15 @@ api.get("/expenses", (req, res, next) => {
     })
 })
 
-api.delete('/products/:id', (req, res, next) => {
+api.delete('/products/:id', verifyToken, (req, res, next) => {
+    jwt.verify(req.token, "secretkey", (err, authData) => {
+        if(err){
+            res.send(403)
+        }
+        else{
+            authData
+        }
+    })
     Product.findOneAndDelete({ _id: req.params.id }, function (err) {
         if (err) {
             return next(err)
@@ -116,22 +186,20 @@ api.delete('/products/:id', (req, res, next) => {
     )
 })
 
-api.patch("/products/:id", (req, res, next) => {
-    Product.findByIdAndUpdate({_id: req.params.id }, req.body, (err) => {
+api.patch("/editproduct/:id", verifyToken, (req, res, next) => {
+    jwt.verify(req.token, "secretkey", (err, authData) => {
+        if(err){
+            res.send(403)
+        }
+        else{
+            authData
+        }
+    })
+    Product.findByIdAndUpdate({_id: req.params._id }, (err) => {
         if(err){
             return next(err)
         }
         res.send("Succesfully Edited")
     })
+    console.log(res)
 })
-
-
-
-
-
-
-
-
-
-
-
