@@ -17,28 +17,28 @@ const session = require("express-session");
 
 api.use(session({ secret: "test" }));
 // api.use(cors())
-let allowCrossDomain = function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "*");
-  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PATCH, PUT, DELETE");
-  next();
+let allowCrossDomain = function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "*");
+    res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PATCH, PUT, DELETE");
+    next();
 };
 api.use(allowCrossDomain);
 
 
 api.listen(3000);
 
-function verifyToken(req, res, next){
+function verifyToken(req, res, next) {
 
     const bearerHeader = req.headers["authorization"]
 
-    if( typeof bearerHeader !== "undefined"){
+    if (typeof bearerHeader !== "undefined") {
         const bearer = bearerHeader.split(" ");
         const bearerToken = bearer[1];
         req.token = bearerToken;
         next();
     }
-    else{
+    else {
         res.send(403)
     }
 }
@@ -48,26 +48,26 @@ api.post("/", (req, res) => {
     var email = req.body.email;
     var password = req.body.password;
 
-    User.findOne({email}, (err, user) => {
-        if(err){
+    User.findOne({ email, password }, (err, user) => {
+        if (err) {
             res.send(500)
         }
-        else{
-            if(user !== null){
-                const access_token = jwt.sign({email: user.email}, jwtSecret);
-                res.send({access_token, user})
+        else {
+            if (user !== null) {
+                const access_token = jwt.sign({ email: user.email, password: user.password }, jwtSecret);
+                res.send({ access_token, user })
             }
-            else{
+            else {
                 res.send(401)
             }
         }
-        
-    })
-    })
 
-    
+    })
+})
 
-api.post("/register", (req, res, next)=>{
+
+
+api.post("/register", (req, res, next) => {
     var firstname = req.body.firstname;
     var lastname = req.body.lastname;
     var email = req.body.email;
@@ -90,7 +90,7 @@ api.post("/register", (req, res, next)=>{
         if (err) {
             res.send('Error creating user');
         } else {
-            if (!user) {
+            if (user !== null) {
                 newuser.save(function (err) {
                     if (err) {
                         res.status(406).send(err)
@@ -107,99 +107,132 @@ api.post("/register", (req, res, next)=>{
 });
 
 
-
-api.post("/newproduct", (req, res, next)=>{
+api.post("/newproduct", verifyToken, (req, res, next) => {
     var productname = req.body.productname;
     var desc = req.body.desc;
     var type = req.body.type;
     var date = req.body.date;
     var price = req.body.price;
-    var userEmail = req.body.userEmail;
+    // var userEmail = req.body.userEmail;
 
     let newproduct = new Product({
-        productname: productname, 
-        desc: desc,  
+        productname: productname,
+        desc: desc,
         type: type,
         date: date,
-        price: price,
-        userEmail: userEmail
+        price: price
+
     });
 
-    newproduct.save(function(err){
-        if(err){
-            return next(err);
-        }
-        res.send("New Product saved!");
-    })
-})
-
-api.get("/products", verifyToken, (req, res, next) => {
-    jwt.verify(req.token, "secretkey", (err, authData) => {
+    jwt.verify(req.token, jwtSecret, (err, authData) => {
         if(err){
             res.send(403)
         }
         else{
+            newproduct.save((err)=>{
+                if(err){
+                    next(err)
+                }
+                res.send("Product Created")
+            })
             authData
         }
     })
-    Product.find({}, function(err, products){
-        if(err){
-            return next(err)
-        }
-        res.send("Post Created", products)
-    })
 })
 
-api.get("/expenses", verifyToken, (req, res, next) => {
-    jwt.verify(req.token, "secretkey", (err, authData) => {
-        if(err){
-            res.send(403)
-        }
-        else{
-            authData
-        }
-    })
-    Product.find({}, function(err, products) {
-        if(err){
-            return next(err)
-        }
 
-        res.send(products)
-    })
-})
 
-api.delete('/products/:id', verifyToken, (req, res, next) => {
-    jwt.verify(req.token, "secretkey", (err, authData) => {
-        if(err){
-            res.send(403)
-        }
-        else{
-            authData
-        }
-    })
-    Product.findOneAndDelete({ _id: req.params.id }, function (err) {
-        if (err) {
-            return next(err)
-        }
-        Product.find({}).then(data => res.send(data))
-    }
-    )
-})
 
-api.patch("/editproduct/:id", verifyToken, (req, res, next) => {
-    jwt.verify(req.token, "secretkey", (err, authData) => {
-        if(err){
-            res.send(403)
-        }
-        else{
-            authData
-        }
+    //     newproduct.save(function(err){
+    //         if(err){
+    //             return next(err);
+    //         }
+    //         res.send("New Product saved!");
+    //     })
+    // })
+
+    api.get("/products", verifyToken, (req, res, next) => {
+        jwt.verify(req.token, jwtSecret, (err, authData) => {
+            if(err){
+                res.send(403)
+            }
+            else{
+                Product.find({}, function(err, products) {
+                    if (err) {
+                      return next(err);
+                    }
+                    res.send(products);
+                  });
+                  authData
+            }
+        })
+
     })
-    Product.findByIdAndUpdate({_id: req.params._id }, (err) => {
-        if(err){
-            return next(err)
-        }
-        res.send("Succesfully Edited")
+
+    // jwt.verify(req.token, "secretkey", (err, authData) => {
+    //     if(err){
+    //         res.send(403)
+    //     }
+    //     else{
+    //         authData
+    //     }
+    // })
+
+    api.get("/expenses", verifyToken, (req, res, next) => {
+        jwt.verify(req.token, jwtSecret, (err, authData) => {
+            if(err){
+                res.send(403)
+            }
+            else{
+                Product.find({}, function(err, products) {
+                    if (err) {
+                      return next(err);
+                    }
+                    res.send(products);
+                  });
+                  authData
+            }
+        })
     })
-    console.log(res)
-})
+
+
+    api.delete('/products/:id', verifyToken, (req, res, next) => {
+        jwt.verify(req.token, jwtSecret, (err, authData) => {
+            if(err){
+                res.send(403)
+            }
+            else{
+                Product.findOneAndDelete({ _id: req.params.id }, function (err) {
+                    if (err) {
+                        return next(err)
+                    }
+                    Product.find({}).then(data => res.send(data))
+                });
+                authData
+            }
+        })
+        
+        
+        
+    })
+
+    api.patch("/editproduct/:id", verifyToken, (req, res, next) => {
+        jwt.verify(req.token, jwtSecret, (err, authData) => {
+            if(err){
+                res.send(403)
+            }
+            else{
+                Product.findByIdAndUpdate({ _id: req.params._id }, (err) => {
+                    if (err) {
+                        return next(err)
+                    }
+                    res.send("Succesfully Edited")
+                    console.log(res)
+                })
+                authData
+            }
+        })
+
+        
+        
+    })
