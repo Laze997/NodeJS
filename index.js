@@ -1,3 +1,4 @@
+    
 const Product = require("./models/product");
 const express = require("express");
 var api = express();
@@ -16,7 +17,7 @@ const session = require("express-session");
 
 
 api.use(session({ secret: "test" }));
-// api.use(cors())
+api.use(cors())
 let allowCrossDomain = function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "*");
@@ -47,14 +48,15 @@ function verifyToken(req, res, next) {
 api.post("/", (req, res) => {
     var email = req.body.email;
     var password = req.body.password;
+    req.session.user = email;
 
-    User.findOne({ email, password }, (err, user) => {
+    User.findOne({ email }, (err, user) => {
         if (err) {
             res.send(500)
         }
         else {
             if (user !== null) {
-                const access_token = jwt.sign({ email: user.email, password: user.password }, jwtSecret);
+                const access_token = jwt.sign({ email: user.email }, jwtSecret);
                 res.send({ access_token, user })
             }
             else {
@@ -90,7 +92,7 @@ api.post("/register", (req, res, next) => {
         if (err) {
             res.send('Error creating user');
         } else {
-            if (user !== null) {
+            if (!user) {
                 newuser.save(function (err) {
                     if (err) {
                         res.status(406).send(err)
