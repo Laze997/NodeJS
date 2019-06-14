@@ -8,7 +8,7 @@ const myParser = require("body-parser");
 var cors = require("cors")
 var jwt = require("jsonwebtoken");
 var jwtSecret = "secretkey"
-
+var bcrypt = require("bcrypt")
 
 
 api.use(myParser.urlencoded({ extended: true }));
@@ -20,7 +20,7 @@ api.use(session({ secret: "test" }));
 api.use(cors())
 let allowCrossDomain = function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "*");
+    res.header("Access-Control-Allow-Headers", "X-Requested-With,Content-Type");
     res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PATCH, PUT, DELETE");
     next();
 };
@@ -48,22 +48,22 @@ function verifyToken(req, res, next) {
 api.post("/", (req, res) => {
     var email = req.body.email;
     var password = req.body.password;
-    req.session.user = email;
 
     User.findOne({ email }, (err, user) => {
         if (err) {
-            res.send(500)
-        }
-        else {
+            res.send('Error from database').status(500);
+        } else {
             if (user !== null) {
-                const access_token = jwt.sign({ email: user.email }, jwtSecret);
-                res.send({ access_token, user })
-            }
-            else {
-                res.send(401)
+                if (bcrypt.compareSync(password, user.password)) {
+                    const access_token = jwt.sign({ email: user.email }, jwtSecret);
+                    res.send({ access_token, user })
+                } else {
+                    res.status(401).send("Password not correct")
+                }
+            } else {
+                res.status(403).send('Credentials not correct');
             }
         }
-
     })
 })
 
