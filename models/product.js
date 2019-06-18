@@ -7,7 +7,6 @@ const ProductModel = mongoose.model('Product', new Schema({
     type: { type: String },
     date: { type: Date, required: true },
     price: { type: Number, required: true },
-    user: [{ type: Schema.Types.ObjectId, ref: 'User' }]
 }))
 
 module.exports = ProductModel;

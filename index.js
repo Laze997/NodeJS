@@ -136,22 +136,13 @@ api.post("/newproduct", verifyToken, (req, res, next) => {
                     next(err)
                 }
                 res.send("Product Created")
+                authData
             })
-            authData
+            
         }
     })
 })
 
-
-
-
-    //     newproduct.save(function(err){
-    //         if(err){
-    //             return next(err);
-    //         }
-    //         res.send("New Product saved!");
-    //     })
-    // })
 
     api.get("/products", verifyToken, (req, res, next) => {
         jwt.verify(req.token, jwtSecret, (err, authData) => {
@@ -165,20 +156,13 @@ api.post("/newproduct", verifyToken, (req, res, next) => {
                     }
                     res.send(products);
                   });
+       
                   authData
             }
         })
 
     })
 
-    // jwt.verify(req.token, "secretkey", (err, authData) => {
-    //     if(err){
-    //         res.send(403)
-    //     }
-    //     else{
-    //         authData
-    //     }
-    // })
 
     api.get("/expenses", verifyToken, (req, res, next) => {
         jwt.verify(req.token, jwtSecret, (err, authData) => {
