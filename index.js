@@ -182,24 +182,36 @@ api.post("/newproduct", verifyToken, (req, res, next) => {
     })
 
 
-    api.delete('/products/:id', verifyToken, (req, res, next) => {
-        jwt.verify(req.token, jwtSecret, (err, authData) => {
-            if(err){
-                res.send(403)
+    // api.delete('/products/:id', (req, res, next) => {
+    //     // jwt.verify(req.token, jwtSecret, (err, authData) => {
+    //     //     if(err){
+    //     //         res.send(403)
+    //     //     }
+    //         // else{
+    //             Product.findOneAndDelete({ _id: req.params.id }, function (err) {
+    //                 if (err) {
+    //                     return next(err)
+    //                 }
+    //                 Product.find({}).then(data => res.send(data));
+    //                 // authData
+    //             });
+                
+    //     //     }
+    //     // })
+        
+        
+        
+    // })
+
+    api.delete('/products/:id', (req, res, next) => {
+
+        Product.findOneAndDelete({ _id: req.params.id }, function (err) {
+            if (err) {
+                return next(err)
             }
-            else{
-                Product.findOneAndDelete({ _id: req.params.id }, function (err) {
-                    if (err) {
-                        return next(err)
-                    }
-                    Product.find({}).then(data => res.send(data))
-                });
-                authData
-            }
-        })
-        
-        
-        
+            Product.find({}).then(data => res.send(data));
+        });
+
     })
 
     api.patch("/editproduct/:id", verifyToken, (req, res, next) => {
