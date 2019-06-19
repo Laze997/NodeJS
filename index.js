@@ -182,27 +182,6 @@ api.post("/newproduct", verifyToken, (req, res, next) => {
     })
 
 
-    // api.delete('/products/:id', (req, res, next) => {
-    //     // jwt.verify(req.token, jwtSecret, (err, authData) => {
-    //     //     if(err){
-    //     //         res.send(403)
-    //     //     }
-    //         // else{
-    //             Product.findOneAndDelete({ _id: req.params.id }, function (err) {
-    //                 if (err) {
-    //                     return next(err)
-    //                 }
-    //                 Product.find({}).then(data => res.send(data));
-    //                 // authData
-    //             });
-                
-    //     //     }
-    //     // })
-        
-        
-        
-    // })
-
     api.delete('/products/:id', (req, res, next) => {
 
         Product.findOneAndDelete({ _id: req.params.id }, function (err) {
@@ -214,23 +193,58 @@ api.post("/newproduct", verifyToken, (req, res, next) => {
 
     })
 
-    api.patch("/editproduct/:id", verifyToken, (req, res, next) => {
-        jwt.verify(req.token, jwtSecret, (err, authData) => {
-            if(err){
-                res.send(403)
-            }
-            else{
-                Product.findByIdAndUpdate({ _id: req.params._id }, (err) => {
-                    if (err) {
-                        return next(err)
-                    }
-                    res.send("Succesfully Edited")
-                    console.log(res)
-                })
-                authData
-            }
-        })
+
+    // api.patch("/editproduct/:id", verifyToken, (req, res, next) => {
+    // var productname = req.body.productname;
+    // var desc = req.body.desc;
+    // var type = req.body.type;
+    // var date = req.body.date;
+    // var price = req.body.price;
+    // // var userEmail = req.body.userEmail;
+
+    // let newproduct = new Product({
+    //     productname: productname,
+    //     desc: desc,
+    //     type: type,
+    //     date: date,
+    //     price: price
+
+    // });      
+
+
+    //     jwt.verify(req.token, jwtSecret, (err, authData) => {
+    //         if(err){
+    //             res.send(403)
+    //         }
+    //         else{
+    //             Product.findByIdAndUpdate({ _id: req.params._id }, (err) => {
+    //                 if (err) {
+    //                     return next(err)
+    //                 }
+    //                 res.send("Succesfully Edited")
+    //                 console.log(res)
+    //             })
+    //             authData
+    // //         }
+    // //     })
 
         
         
+    // })
+
+    api.patch('/editproduct/:id', (req, res, next) => {
+        
+    var productname = req.body.productname;
+    var desc = req.body.desc;
+    var type = req.body.type;
+    var date = req.body.date;
+    var price = req.body.price;
+    
+        Product.findByIdAndUpdate(req.params.id, {productname, desc, type, date, price})
+        .then(res => {
+            res.send("Product Edited")
+        }).catch(err => {
+            console.log(err)
+            res.send("Cannot edit product")
+        })
     })
